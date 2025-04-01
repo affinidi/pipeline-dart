@@ -1,0 +1,19 @@
+name: publish
+on:
+  workflow_call:
+jobs:
+  publish-packages:
+    name: Publish packages
+    environment: release
+    permissions:
+      contents: write
+      id-token: write # Required for authentication using OIDC
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dart-lang/setup-dart@v1.7.1
+      - uses: bluefireteam/melos-action@v3
+        with:
+          publish: false #TODO: add workflow input
