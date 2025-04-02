@@ -4,7 +4,7 @@ pipeline for Affinidi dart projects
 
 ## How to use
 
-1. add file to `.github/workflows/checks.yaml` to add mr pipeline checks
+1. add file to `.github/workflows/check.yaml` to add mr pipeline checks
 
 ```yaml
 name: checks
@@ -14,7 +14,7 @@ on:
      
 jobs:
   dart-pipeline:
-    uses: affinidi/pipeline-dart/.github/workflows/checks.yaml@main
+    uses: affinidi/pipeline-dart/.github/workflows/check.yaml@main
     secrets: inherit
 ```
 
