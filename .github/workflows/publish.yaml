@@ -1,11 +1,11 @@
-name: release
+name: publish
 on:
   workflow_call:
 jobs:
   build:
     runs-on: ubuntu-latest
     environment: main
-    concurrency: release
+    concurrency: publish
     if: ${{ !contains(github.event.head_commit.message, 'chore(release)') }}
     steps:
       - name: Generate token from app token #https://github.com/tibdex/github-app-token
