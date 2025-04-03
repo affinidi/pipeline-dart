@@ -2,6 +2,9 @@ name: release
 on:
   workflow_call:
 jobs:
+  wiz-scan:
+    uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
+    secrets: inherit
   build:
     runs-on: ubuntu-latest
     environment: main
