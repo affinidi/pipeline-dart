@@ -24,4 +24,4 @@ jobs:
       - uses: dart-lang/setup-dart@v1.7.1
       - uses: bluefireteam/melos-action@v3
         with:
-          publish: ${{ inputs.release_dry_run }}
+          publish: ${{ inputs.publish }}
