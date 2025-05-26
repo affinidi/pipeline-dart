@@ -1,6 +1,7 @@
 # Pipeline-dart
 
 pipeline for Affinidi dart projects
+NB: if your project contains at least one flutter package, use `workflow_flutter.yaml`, otherwise `workflow.yaml` to save time and resources.
 
 ## How to use
 
@@ -14,7 +15,7 @@ on:
      
 jobs:
   dart-pipeline:
-    uses: affinidi/pipeline-dart/.github/workflows/check.yaml@main
+    uses: affinidi/pipeline-dart/.github/workflows/check{_flutter}.yaml@main
     secrets: inherit
 ```
 
@@ -30,7 +31,7 @@ on:
 
 jobs:
   dart-pipeline:
-    uses: affinidi/pipeline-dart/.github/workflows/release.yaml@main
+    uses: affinidi/pipeline-dart/.github/workflows/release{_flutter}.yaml@main
     secrets: inherit
 ```
 
@@ -47,6 +48,6 @@ on:
 
 jobs:
   dart-pipeline:
-    uses: affinidi/pipeline-dart/.github/workflows/publish.yaml@main
+    uses: affinidi/pipeline-dart/.github/workflows/publish{_flutter}.yaml@main
     secrets: inherit
 ```
