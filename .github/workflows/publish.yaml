@@ -11,7 +11,7 @@ on:
       dart-sdk-version:
         type: string
         required: false
-        default: '3.6.0'
+        default: '3.6'
 
 jobs:
   publish-packages:

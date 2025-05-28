@@ -5,7 +5,7 @@ on:
       dart-sdk-version:
         type: string
         required: false
-        default: '3.6.0'
+        default: '3.6'
 jobs:
   wiz-scan:
     uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
