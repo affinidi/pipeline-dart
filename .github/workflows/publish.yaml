@@ -8,6 +8,10 @@ on:
         required: false
         type: boolean
         default: false
+      dart-sdk-version:
+        type: string
+        required: false
+        default: '3.6'
 
 jobs:
   publish-packages:
@@ -22,6 +26,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: dart-lang/setup-dart@v1.7.1
+        with:
+          sdk: ${{ inputs.dart-sdk-version }}
       - uses: bluefireteam/melos-action@v3
         with:
           publish: ${{ inputs.publish }}
