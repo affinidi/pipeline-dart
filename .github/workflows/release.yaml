@@ -1,6 +1,11 @@
 name: release
 on:
   workflow_call:
+    inputs:
+      dart-sdk-version:
+        type: string
+        required: false
+        default: '3.6.0'
 jobs:
   wiz-scan:
     uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
@@ -29,6 +34,8 @@ jobs:
       # You can specify other versions if desired, see documentation here:
       # https://github.com/dart-lang/setup-dart/blob/main/README.md
       - uses: dart-lang/setup-dart@v1.7.1
+        with:
+          sdk: ${{ inputs.dart-sdk-version }}
       - uses: bluefireteam/melos-action@v3
         with:
           run-versioning: true
