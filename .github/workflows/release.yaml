@@ -25,10 +25,10 @@ jobs:
         run: |
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # Note: This workflow uses the latest stable version of the Flutter+Dart SDK.
       # You can specify other versions if desired, see documentation here:
-      # https://github.com/dart-lang/setup-dart/blob/main/README.md
-      - uses: dart-lang/setup-dart@v1.7.1
+      # https://github.com/flutter-actions/setup-flutter/blob/main/README.md
+      - uses: flutter-actions/setup-flutter@v3
       - uses: bluefireteam/melos-action@v3
         with:
           run-versioning: true

@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: dart-lang/setup-dart@v1.7.1
+      - uses: flutter-actions/setup-flutter@v3
       - uses: bluefireteam/melos-action@v3
         with:
           publish: ${{ inputs.publish }}
