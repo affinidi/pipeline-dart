@@ -2,10 +2,10 @@ name: release
 on:
   workflow_call:
     inputs:
-      dart-sdk-version:
+      flutter-version:
         type: string
         required: false
-        default: '3.6'
+        default: '3.29.3'
 jobs:
   wiz-scan:
     uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
@@ -30,12 +30,12 @@ jobs:
         run: |
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # Note: This workflow uses the latest stable version of the Flutter+Dart SDK.
       # You can specify other versions if desired, see documentation here:
-      # https://github.com/dart-lang/setup-dart/blob/main/README.md
-      - uses: dart-lang/setup-dart@v1.7.1
-        with:
-          sdk: ${{ inputs.dart-sdk-version }}
+      # https://github.com/flutter-actions/setup-flutter/blob/main/README.md
+      - uses: flutter-actions/setup-flutter@v3
+        channel: stable
+        version: ${{ inputs.flutter-version }}
       - uses: bluefireteam/melos-action@v3
         with:
           run-versioning: true

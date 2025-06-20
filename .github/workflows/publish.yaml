@@ -8,10 +8,10 @@ on:
         required: false
         type: boolean
         default: false
-      dart-sdk-version:
+      flutter-version:
         type: string
         required: false
-        default: '3.6'
+        default: '3.29.3'
 
 jobs:
   publish-packages:
@@ -25,9 +25,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: dart-lang/setup-dart@v1.7.1
-        with:
-          sdk: ${{ inputs.dart-sdk-version }}
+      - uses: flutter-actions/setup-flutter@v3
+        channel: stable
+        version: ${{ inputs.flutter-version }}
+      - uses: flutter-actions/setup-pubdev-credentials@v1
       - uses: bluefireteam/melos-action@v3
         with:
           publish: ${{ inputs.publish }}
