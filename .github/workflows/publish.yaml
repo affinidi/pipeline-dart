@@ -26,8 +26,9 @@ jobs:
         with:
           fetch-depth: 0
       - uses: flutter-actions/setup-flutter@v3
-        channel: stable
-        version: ${{ inputs.flutter-version }}
+        with:
+          channel: stable
+          version: ${{ inputs.flutter-version }}
       - uses: flutter-actions/setup-pubdev-credentials@v1
       - uses: bluefireteam/melos-action@v3
         with:
