@@ -2,7 +2,7 @@ name: integration_test
 on:
   workflow_call:
     inputs:
-      dart-version:
+      flutter-version:
         type: string
         required: false
         default: '3.8.1'
@@ -18,10 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@v1
+      - name: Setup Flutter
+        uses: flutter-actions/setup-flutter@v3
         with:
-          sdk: ${{ inputs.dart-version }} 
+          channel: stable
+          version: ${{ inputs.flutter-version }}
 
       - if: ${{ steps.testing-env-cache.outputs.cache-hit != 'true' }}
         name: Prepare environment file
