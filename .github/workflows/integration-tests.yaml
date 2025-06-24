@@ -1,0 +1,37 @@
+name: integration_test
+on:
+  workflow_call:
+    inputs:
+      dart-version:
+        type: string
+        required: false
+        default: '3.8.1'
+      working-directory:
+        type: string
+        required: true
+        default: './packages/integration_tests'
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ inputs.dart-version }} 
+
+      - if: ${{ steps.testing-env-cache.outputs.cache-hit != 'true' }}
+        name: Prepare environment file
+        env:
+          TESTING_ENV_FILE_CONTENT: ${{ secrets.TESTING_ENV_FILE_CONTENT }}
+          WORKDIR: ${{ inputs.working-directory }}
+        run: echo $TESTING_ENV_FILE_CONTENT | base64 --decode > "$WORKDIR/.env"
+
+      - name: Set up melos
+        uses: bluefireteam/melos-action@v3
+
+      - name: Run integration tests
+        run: melos test-integration
