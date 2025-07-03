@@ -24,8 +24,6 @@ jobs:
   dart-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - name: Run Dart Scanner
         uses: affinidi/dart-pipeline-scanner/.github/actions/dart-scan/action.yml@main
         with:
