@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Dart Scanner
-        uses: affinidi/dart-pipeline-scanner/.github/actions/dart-scan/action.yml@main
+        uses: affinidi/dart-pipeline-scanner/.github/actions/dart-scan@main
         with:
           repo-path: ${{ inputs.repo-path }}
           DART_SCANNER_TOKEN: ${{ secrets.DART_SCANNER_TOKEN }}
