@@ -6,11 +6,34 @@ on:
         type: string
         required: false
         default: '3.32.4'
+      repo-path:
+        required: false
+        default: '.'
+        type: string
+        
+    secrets:
+      DART_SCANNER_TOKEN:
+        required: true
+      DART_SCANNER_REGION:
+        required: true
+
 jobs:
   wiz-scan:
     uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
     secrets: inherit
+  dart-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Dart Scanner
+        uses: affinidi/dart-pipeline-scanner/.github/actions/dart-scan/action.yml@main
+        with:
+          repo-path: ${{ inputs.repo-path }}
+          DART_SCANNER_TOKEN: ${{ secrets.DART_SCANNER_TOKEN }}
+          DART_SCANNER_REGION: ${{ secrets.DART_SCANNER_REGION }}
   build:
+    needs: [wiz-scan, dart-scan]
     runs-on: ubuntu-latest
     environment: main
     concurrency: release
