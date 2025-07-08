@@ -22,9 +22,10 @@ jobs:
     uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
     secrets: inherit
   dart-scan:
+    name: Dart/Flutter Security Scan
     runs-on: ubuntu-latest
     steps:
-      - name: Run Dart Scanner
+      - name: Running Dart Scanner
         uses: affinidi/pipeline-security/.github/actions/dart-scanner@security-dart-scanner
         with:
           repo-path: ${{ inputs.repo-path }}
