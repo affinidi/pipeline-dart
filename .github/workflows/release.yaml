@@ -12,9 +12,9 @@ on:
         type: string
         
     secrets:
-      DART_SCANNER_TOKEN:
+      SNYK_SCANNER_TOKEN:
         required: true
-      DART_SCANNER_REGION:
+      SNYK_SCANNER_REGION:
         required: true
 
 jobs:
