@@ -33,3 +33,4 @@ jobs:
       - uses: bluefireteam/melos-action@v3
         with:
           publish: ${{ inputs.publish }}
+          dart-version: 'none'
