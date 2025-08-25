@@ -5,11 +5,11 @@ on:
       flutter-version:
         type: string
         required: false
-        default: '3.32.4'
+        default: "3.32.4"
 
 jobs:
-  wiz-scan:
-    uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
+  dart-security-scan:
+    uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@main
     secrets: inherit
   build:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-        
+
       - name: Fetch base ref
         if: github.event_name == 'pull_request'
         run: git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1

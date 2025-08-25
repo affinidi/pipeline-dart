@@ -5,10 +5,10 @@ on:
       flutter-version:
         type: string
         required: false
-        default: '3.32.4'
+        default: "3.32.4"
 jobs:
-  wiz-scan:
-    uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
+  dart-security-scan:
+    uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@main
     secrets: inherit
   build:
     runs-on: ubuntu-latest
