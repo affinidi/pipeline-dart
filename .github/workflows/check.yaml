@@ -5,7 +5,7 @@ on:
       flutter-version:
         type: string
         required: false
-        default: "3.32.4"
+        default: '3.32.4'
 
 jobs:
   dart-security-scan:
