@@ -22,7 +22,7 @@ jobs:
     uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
     secrets: inherit
   dart-scan:
-    uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@security-rust-scanner
+    uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@fix/dart-pipeline-bug
     with:
       repo-path: ${{ inputs.repo-path }}
       flutter-version: ${{ inputs.flutter-version }}
