@@ -10,12 +10,6 @@ on:
         required: false
         default: '.'
         type: string
-        
-    secrets:
-      SNYK_SCANNER_TOKEN:
-        required: true
-      SNYK_SCANNER_REGION:
-        required: true
 
 jobs:
   wiz-scan:
