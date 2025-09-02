@@ -6,12 +6,23 @@ on:
         type: string
         required: false
         default: '3.32.4'
+      repo-path:
+        required: false
+        default: '.'
+        type: string
 
 jobs:
   wiz-scan:
     uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
     secrets: inherit
+  dart-scan:
+    uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@main
+    with:
+      repo-path: ${{ inputs.repo-path }}
+      flutter-version: ${{ inputs.flutter-version }}
+    secrets: inherit
   build:
+    needs: [wiz-scan, dart-scan]
     runs-on: ubuntu-latest
     services:
       localstack:
