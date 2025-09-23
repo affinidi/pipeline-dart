@@ -12,9 +12,6 @@ on:
         type: string
 
 jobs:
-  wiz-scan:
-    uses: affinidi/pipeline-security/.github/workflows/wizcli-dirscan.yml@main
-    secrets: inherit
   dart-scan:
     uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@main
     with:
