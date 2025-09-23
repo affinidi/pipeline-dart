@@ -19,7 +19,7 @@ jobs:
       flutter-version: ${{ inputs.flutter-version }}
     secrets: inherit
   build:
-    needs: [wiz-scan, dart-scan]
+    needs: [dart-scan]
     runs-on: ubuntu-latest
     services:
       localstack:
