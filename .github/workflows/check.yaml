@@ -49,8 +49,8 @@ jobs:
               # Split the line into key and value based on "=" character.
               key="${line%%=*}"        # Retain the part before the first "="
               val="${line#*=}"         # Retain the part after the first "="
-              #echo "::add-mask::$val"  # Mask values because they could be sensitive
-              echo "INFO: Setting variable $key=$val"
+              echo "::add-mask::$val"  # Mask values because they could be sensitive
+              echo "INFO: Setting variable $key"
               echo "${key}=${val}" >> "$GITHUB_ENV"
             fi
           done      
