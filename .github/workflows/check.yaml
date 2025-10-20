@@ -10,6 +10,10 @@ on:
         required: false
         default: '.'
         type: string
+      env_vars:
+        description: "Environment variables that will be passed to the build"
+        required: false
+        type: string
 
 jobs:
   dart-scan:
@@ -36,6 +40,20 @@ jobs:
       - name: Fetch base ref
         if: github.event_name == 'pull_request'
         run: git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+      - name: Set environment variables
+        run: |
+          echo "${{ inputs.env_vars }}" | while IFS= read -r line
+          do
+            if [ -n "$line" ]
+            then
+              # Split the line into key and value based on "=" character.
+              key="${line%%=*}"        # Retain the part before the first "="
+              val="${line#*=}"         # Retain the part after the first "="
+              echo "::add-mask::$val"  # Mask values because they could be sensitive
+              echo "INFO: Setting variable $key"
+              echo "${key}=${val}" >> "$GITHUB_ENV"
+            fi
+          done      
 
       # Note: This workflow uses the latest stable version of the Fluter+Dart SDK.
       # You can specify other versions if desired, see documentation here:
