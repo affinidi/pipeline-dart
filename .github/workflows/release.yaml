@@ -55,4 +55,4 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
       - name: Push Tags
-        run: git push --follow-tags
+        run: for tag in $(git tag --points-at HEAD); do git push origin "$tag";done
