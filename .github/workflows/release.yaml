@@ -54,5 +54,7 @@ jobs:
           create-pr: false
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+      - name: Push Release Commit
+        run: git push
       - name: Push Tags
         run: for tag in $(git tag --points-at HEAD); do git push origin "$tag";done
