@@ -10,6 +10,11 @@ on:
         required: false
         default: '.'
         type: string
+      package:
+        description: "If repository is a publishable package, run package analyzer"
+        required: false
+        default: false
+        type: boolean
       env_vars:
         description: "Environment variables that will be passed to the build"
         required: false
@@ -69,3 +74,6 @@ jobs:
       - uses: romeovs/lcov-reporter-action@v0.3.1
         with:
           lcov-file: ./coverage/lcov.info
+      - name: Run package analyzer
+        if: ${{ inputs.package == true }}
+        run: melos package-analyzer
