@@ -13,7 +13,7 @@ on:
 
 jobs:
   dart-scan:
-    uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@feat/dart-security-scanner-reports
+    uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@SEC-3375-Dart-Scanner-Improvements
     with:
       repo-path: ${{ inputs.repo-path }}
       flutter-version: ${{ inputs.flutter-version }}
