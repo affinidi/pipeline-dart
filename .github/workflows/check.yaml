@@ -68,12 +68,10 @@ jobs:
           channel: stable
           version: ${{ inputs.flutter-version }}
       - uses: bluefireteam/melos-action@v3
-      - run: melos format --output=none --set-exit-if-changed .
-      - run: melos analyze
-      - run: melos test
-      - uses: romeovs/lcov-reporter-action@v0.3.1
-        with:
-          lcov-file: ./coverage/lcov.info
+      - name: Check formatting
+        run: melos format --output=none --set-exit-if-changed .
+      - name: Run static analysis
+        run: melos analyze
       - name: Install pana
         if: ${{ inputs.package == true }}
         run: dart pub global activate pana
@@ -93,4 +91,9 @@ jobs:
                 exit 1
               fi
             '
+      - name: Run tests
+        run: melos test
+      - uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          lcov-file: ./coverage/lcov.info
 
