@@ -15,6 +15,11 @@ on:
         required: false
         default: false
         type: boolean
+      pana_min_score:
+        description: "Minimum score required by pana analyzer"
+        required: false
+        default: 160
+        type: number
       env_vars:
         description: "Environment variables that will be passed to the build"
         required: false
@@ -82,13 +87,13 @@ jobs:
         if: ${{ inputs.package == true }}
         run: |
           export PATH="$PATH:$HOME/.pub-cache/bin"
-          melos exec -- \
-            bash -c '
-              read PACKAGE_NAME PACKAGE_SCORE <<< $(pana --source path . --json | jq -r ".packageName + \" \" + (.scores.grantedPoints|tostring)")
-              echo "Package: $PACKAGE_NAME, Score: $PACKAGE_SCORE"
-              if [ "$PACKAGE_SCORE" -lt 160 ]; then
-                echo "❌ $PACKAGE_NAME score below 160"
+          melos exec --no-private -- '\
+              PACKAGE_SCORE=$(pana --source path . --json 2>/dev/null | jq -r ".scores.grantedPoints")
+              if [ "$PACKAGE_SCORE" -lt ${{ inputs.pana_min_score }} ]; then
+                echo "❌ Score below  minimum requirement of ${{ inputs.pana_min_score }}"
                 exit 1
+              else
+                echo "✅ Score meets the minimum requirement of ${{ inputs.pana_min_score }}"
               fi
             '
       - name: Run tests
