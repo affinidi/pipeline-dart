@@ -74,6 +74,23 @@ jobs:
       - uses: romeovs/lcov-reporter-action@v0.3.1
         with:
           lcov-file: ./coverage/lcov.info
+      - name: Install pana
+        if: ${{ inputs.package == true }}
+        run: dart pub global activate pana
+      - name: Install jq
+        if: ${{ inputs.package == true }}
+        run: sudo apt-get update && sudo apt-get install -y jq
       - name: Run package analyzer
         if: ${{ inputs.package == true }}
-        run: melos package-analyzer
+        run: |
+          export PATH="$PATH:$HOME/.pub-cache/bin"
+          melos exec -- \
+            bash -c '
+              read PACKAGE_NAME PACKAGE_SCORE <<< $(pana --source path . --json | jq -r ".packageName + \" \" + (.scores.grantedPoints|tostring)")
+              echo "Package: $PACKAGE_NAME, Score: $PACKAGE_SCORE"
+              if [ "$PACKAGE_SCORE" -lt 160 ]; then
+                echo "❌ $PACKAGE_NAME score below 160"
+                exit 1
+              fi
+            '
+
