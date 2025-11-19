@@ -10,6 +10,16 @@ on:
         required: false
         default: '.'
         type: string
+      package:
+        description: "If repository is a publishable package, run package analyzer"
+        required: false
+        default: false
+        type: boolean
+      pana_min_score:
+        description: "Minimum score required by pana analyzer"
+        required: false
+        default: 160
+        type: number
       env_vars:
         description: "Environment variables that will be passed to the build"
         required: false
@@ -63,9 +73,31 @@ jobs:
           channel: stable
           version: ${{ inputs.flutter-version }}
       - uses: bluefireteam/melos-action@v3
-      - run: melos format --output=none --set-exit-if-changed .
-      - run: melos analyze
-      - run: melos test
+      - name: Check formatting
+        run: melos format --output=none --set-exit-if-changed .
+      - name: Run static analysis
+        run: melos analyze
+      - name: Run tests
+        run: melos test
       - uses: romeovs/lcov-reporter-action@v0.3.1
         with:
           lcov-file: ./coverage/lcov.info
+      - name: Install pana
+        if: ${{ inputs.package == true }}
+        run: dart pub global activate pana
+      - name: Install jq
+        if: ${{ inputs.package == true }}
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Run package analyzer
+        if: ${{ inputs.package == true }}
+        run: |
+          export PATH="$PATH:$HOME/.pub-cache/bin"
+          melos exec --no-private -- '\
+              PACKAGE_SCORE=$(pana --source path . --json 2>/dev/null | jq -r ".scores.grantedPoints")
+              if [ "$PACKAGE_SCORE" -lt ${{ inputs.pana_min_score }} ]; then
+                echo "❌ Score ("$PACKAGE_SCORE") below  minimum requirement of ${{ inputs.pana_min_score }}"
+                exit 1
+              else
+                echo "✅ Score ("$PACKAGE_SCORE") meets the minimum requirement of ${{ inputs.pana_min_score }}"
+              fi
+            '
