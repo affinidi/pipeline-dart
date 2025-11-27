@@ -57,4 +57,4 @@ jobs:
       - name: Push Release Commit
         run: git push --no-follow-tags
       - name: Push Tags
-        run: for tag in $(git tag --points-at HEAD); do git push origin tag "$tag";done
+        run: for tag in $(git tag --points-at HEAD); do git push origin "$tag";done
