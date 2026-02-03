@@ -50,14 +50,7 @@ jobs:
         with:
           run-versioning: true
           publish-dry-run: true
-          tag: false
+          tag: true
           create-pr: false
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
-      - name: Create Tags Locally
-        # Tag packages after versioning, create new tags, don't fail on existing tags
-        run: melos exec -c 1 --no-private -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION || true
-      - name: Push Release Commit
-        run: git push --no-follow-tags
-      - name: Push Tags
-        run: for tag in $(git tag --points-at HEAD); do git push origin "$tag";done
