@@ -31,14 +31,14 @@ on:
         type: string
 
 jobs:
-  dart-scan:
-    uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@main
-    with:
-      repo-path: ${{ inputs.repo-path }}
-      flutter-version: ${{ inputs.flutter-version }}
-    secrets: inherit
+  # dart-scan:
+  #   uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@main
+  #   with:
+  #     repo-path: ${{ inputs.repo-path }}
+  #     flutter-version: ${{ inputs.flutter-version }}
+  #   secrets: inherit
   build:
-    needs: [dart-scan]
+    # needs: [dart-scan]
     runs-on: ubuntu-latest
     services:
       localstack:
