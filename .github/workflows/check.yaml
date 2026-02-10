@@ -31,14 +31,14 @@ on:
         type: string
 
 jobs:
-  # dart-scan:
-  #   uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@main
-  #   with:
-  #     repo-path: ${{ inputs.repo-path }}
-  #     flutter-version: ${{ inputs.flutter-version }}
-  #   secrets: inherit
+  dart-scan:
+    uses: affinidi/pipeline-security/.github/workflows/dart-scanner.yml@main
+    with:
+      repo-path: ${{ inputs.repo-path }}
+      flutter-version: ${{ inputs.flutter-version }}
+    secrets: inherit
   build:
-    # needs: [dart-scan]
+    needs: [dart-scan]
     runs-on: ubuntu-latest
     services:
       localstack:
@@ -100,19 +100,14 @@ jobs:
           export PANA_MIN_SCORE=${{ inputs.pana_min_score }}
           export PANA_ALLOW_FAILURE=${{ inputs.pana_allow_failure }}
           
-          # Create the analysis script in the calling repository's workspace
+          mkdir -p pana_results          
           mkdir -p .github/scripts
+
           cat > .github/scripts/analyze_package.sh << 'EOF'
           #!/bin/bash
           set -e
           
-          # Script to analyze a single package with pana
-          # This script is executed by melos exec for each package
-          
           echo "📦 Analyzing package: $MELOS_PACKAGE_NAME"
-          
-          # Create results directory if it doesn't exist
-          mkdir -p "$GITHUB_WORKSPACE/pana_results"
           
           # Run pana and save results
           if pana --source path . --json > pana_output.json 2>/dev/null; then
@@ -149,10 +144,8 @@ jobs:
           fi
           EOF
           
-          # Make the script executable
           chmod +x .github/scripts/analyze_package.sh
           
-          # Run the analysis script for each package
           OVERALL_EXIT_CODE=0
           melos exec --no-private -- $GITHUB_WORKSPACE/.github/scripts/analyze_package.sh || OVERALL_EXIT_CODE=$?
           
@@ -211,7 +204,6 @@ jobs:
                 return;
               }
               
-              // Always create a new comment
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
