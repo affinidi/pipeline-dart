@@ -97,8 +97,8 @@ jobs:
         if: ${{ inputs.package == true }}
         run: |
           export PATH="$PATH:$HOME/.pub-cache/bin"
-          RESULTS_DIR="$(pwd)/pana_results"
-          mkdir -p "$RESULTS_DIR"
+          export PANA_RESULTS_DIR="$(pwd)/pana_results"
+          mkdir -p "$PANA_RESULTS_DIR"
           
           OVERALL_EXIT_CODE=0
           
@@ -113,16 +113,16 @@ jobs:
                 # Check if the output is valid JSON
                 if jq . "$TEMP_FILE" > /dev/null 2>&1; then
                   # Copy valid JSON to results directory
-                  cp "$TEMP_FILE" "'$RESULTS_DIR'/$MELOS_PACKAGE_NAME.json"
+                  cp "$TEMP_FILE" "$PANA_RESULTS_DIR/$MELOS_PACKAGE_NAME.json"
                   PACKAGE_SCORE=$(jq -r ".scores.grantedPoints // 0" "$TEMP_FILE" 2>/dev/null || echo "0")
                 else
                   # Invalid JSON - create error file
-                  echo "{\"error\": \"Invalid JSON output\", \"raw_output\": \"$(head -c 500 "$TEMP_FILE" | sed "s/\"/\\\\\"/g")\"}" > "'$RESULTS_DIR'/$MELOS_PACKAGE_NAME.json"
+                  echo "{\"error\": \"Invalid JSON output\"}" > "$PANA_RESULTS_DIR/$MELOS_PACKAGE_NAME.json"
                   PACKAGE_SCORE=0
                 fi
               else
                 # Pana failed - create error file
-                echo "{\"error\": \"Pana execution failed\", \"raw_output\": \"$(head -c 500 "$TEMP_FILE" | sed "s/\"/\\\\\"/g")\"}" > "'$RESULTS_DIR'/$MELOS_PACKAGE_NAME.json"
+                echo "{\"error\": \"Pana execution failed\"}" > "$PANA_RESULTS_DIR/$MELOS_PACKAGE_NAME.json"
                 PACKAGE_SCORE=0
               fi
               
