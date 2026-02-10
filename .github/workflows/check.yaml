@@ -97,15 +97,40 @@ jobs:
         if: ${{ inputs.package == true }}
         run: |
           export PATH="$PATH:$HOME/.pub-cache/bin"
-          mkdir -p pana_results
+          RESULTS_DIR="$(pwd)/pana_results"
+          mkdir -p "$RESULTS_DIR"
+          
           OVERALL_EXIT_CODE=0
           
           melos exec --no-private -- '\
               echo "📦 Analyzing package: $MELOS_PACKAGE_NAME"
-              PANA_OUTPUT=$(pana --source path . --json 2>/dev/null || echo "{\"error\": \"Failed to run pana\"}")
-              echo "$PANA_OUTPUT" > ../pana_results/$MELOS_PACKAGE_NAME.json
               
-              PACKAGE_SCORE=$(echo "$PANA_OUTPUT" | jq -r ".scores.grantedPoints // 0")
+              # Run pana and capture both stdout and stderr
+              if PANA_RAW_OUTPUT=$(pana --source path . --json 2>&1); then
+                # Clean the output to remove any control characters
+                PANA_OUTPUT=$(echo "$PANA_RAW_OUTPUT" | tr -cd "[:print:]\n\r\t")
+                
+                # Validate JSON and save to file
+                if echo "$PANA_OUTPUT" | jq . > /dev/null 2>&1; then
+                  echo "$PANA_OUTPUT" > "'$RESULTS_DIR'/$MELOS_PACKAGE_NAME.json"
+                else
+                  echo "{\"error\": \"Invalid JSON output\", \"raw_output\": \"$(echo "$PANA_RAW_OUTPUT" | head -c 500)\"}" > "'$RESULTS_DIR'/$MELOS_PACKAGE_NAME.json"
+                  PANA_OUTPUT="{\"scores\": {\"grantedPoints\": 0}}"
+                fi
+              else
+                # Pana failed to run
+                echo "{\"error\": \"Failed to run pana\", \"exit_code\": $?}" > "'$RESULTS_DIR'/$MELOS_PACKAGE_NAME.json"
+                PANA_OUTPUT="{\"scores\": {\"grantedPoints\": 0}}"
+              fi
+              
+              # Extract score with proper error handling
+              PACKAGE_SCORE=$(echo "$PANA_OUTPUT" | jq -r ".scores.grantedPoints // 0" 2>/dev/null)
+              
+              # Ensure PACKAGE_SCORE is numeric
+              if ! [ "$PACKAGE_SCORE" -eq "$PACKAGE_SCORE" ] 2>/dev/null; then
+                PACKAGE_SCORE=0
+              fi
+              
               if [ "$PACKAGE_SCORE" -lt ${{ inputs.pana_min_score }} ]; then
                 echo "❌ $MELOS_PACKAGE_NAME: Score ($PACKAGE_SCORE) below minimum requirement of ${{ inputs.pana_min_score }}"
                 if [ "${{ inputs.pana_allow_failure }}" = "false" ]; then
