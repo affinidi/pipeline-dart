@@ -98,14 +98,13 @@ jobs:
         run: |
           export PATH="$PATH:$HOME/.pub-cache/bin"
           export PANA_MIN_SCORE=${{ inputs.pana_min_score }}
-          export PANA_ALLOW_FAILURE=${{ inputs.pana_allow_failure }}
           
           mkdir -p pana_results          
           mkdir -p .github/scripts
 
           cat > .github/scripts/analyze_package.sh << 'EOF'
           #!/bin/bash
-          set -e
+          set -eu 
           
           echo "📦 Analyzing package: $MELOS_PACKAGE_NAME"
           
