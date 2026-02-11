@@ -20,6 +20,11 @@ on:
         required: false
         default: 160
         type: number
+      pana_allow_failure:
+        description: "Allow pana analyzer to fail without failing the workflow"
+        required: false
+        default: true
+        type: boolean
       env_vars:
         description: "Environment variables that will be passed to the build"
         required: false
@@ -92,12 +97,120 @@ jobs:
         if: ${{ inputs.package == true }}
         run: |
           export PATH="$PATH:$HOME/.pub-cache/bin"
-          melos exec --no-private -- '\
-              PACKAGE_SCORE=$(pana --source path . --json 2>/dev/null | jq -r ".scores.grantedPoints")
-              if [ "$PACKAGE_SCORE" -lt ${{ inputs.pana_min_score }} ]; then
-                echo "❌ Score ("$PACKAGE_SCORE") below  minimum requirement of ${{ inputs.pana_min_score }}"
-                exit 1
+          export PANA_MIN_SCORE=${{ inputs.pana_min_score }}
+          
+          mkdir -p pana_results          
+          mkdir -p .github/scripts
+
+          cat > .github/scripts/analyze_package.sh << 'EOF'
+          #!/bin/bash
+          set -eu 
+          
+          echo "📦 Analyzing package: $MELOS_PACKAGE_NAME"
+          
+          # Run pana and save results
+          if pana --source path . --json > pana_output.json 2>/dev/null; then
+              if jq . pana_output.json > /dev/null 2>&1; then
+                  # Valid JSON - copy to results directory
+                  cp pana_output.json "$GITHUB_WORKSPACE/pana_results/$MELOS_PACKAGE_NAME.json"
+                  SCORE=$(jq -r '.scores.grantedPoints // 0' pana_output.json 2>/dev/null || echo "0")
               else
-                echo "✅ Score ("$PACKAGE_SCORE") meets the minimum requirement of ${{ inputs.pana_min_score }}"
+                  # Invalid JSON - create error file
+                  echo '{"error": "Invalid JSON output"}' > "$GITHUB_WORKSPACE/pana_results/$MELOS_PACKAGE_NAME.json"
+                  SCORE=0
               fi
-            '
+          else
+              # Pana execution failed - create error file
+              echo '{"error": "Pana execution failed"}' > "$GITHUB_WORKSPACE/pana_results/$MELOS_PACKAGE_NAME.json"
+              SCORE=0
+          fi
+          
+          # Clean up temporary file
+          rm -f pana_output.json
+          
+          # Validate score is numeric
+          case "$SCORE" in
+              ''|*[!0-9]*) SCORE=0 ;;
+          esac
+          
+          # Check score against minimum requirement
+          if [ "$SCORE" -lt "$PANA_MIN_SCORE" ]; then
+              echo "❌ $MELOS_PACKAGE_NAME: Score ($SCORE) below minimum requirement of $PANA_MIN_SCORE"
+              exit 1
+          else
+              echo "✅ $MELOS_PACKAGE_NAME: Score ($SCORE) meets the minimum requirement of $PANA_MIN_SCORE"
+              exit 0
+          fi
+          EOF
+          
+          chmod +x .github/scripts/analyze_package.sh
+          
+          OVERALL_EXIT_CODE=0
+          melos exec --no-private -- $GITHUB_WORKSPACE/.github/scripts/analyze_package.sh || OVERALL_EXIT_CODE=$?
+          
+          if [ "${{ inputs.pana_allow_failure }}" = "false" ] && [ $OVERALL_EXIT_CODE -ne 0 ]; then
+            exit $OVERALL_EXIT_CODE
+          fi
+      
+      - name: Generate Pana Summary
+        if: ${{ inputs.package == true && github.event_name == 'pull_request' }}
+        run: |
+          echo "# 📊 Pana Analysis Results" > pana_summary.md
+          echo "" >> pana_summary.md
+          echo "| Package | Score | Status | Issues |" >> pana_summary.md
+          echo "|---------|-------|---------|---------|" >> pana_summary.md
+          
+          for result_file in pana_results/*.json; do
+            if [ -f "$result_file" ]; then
+              package_name=$(basename "$result_file" .json)
+              score=$(jq -r '.scores.grantedPoints // "N/A"' "$result_file")
+              max_score=$(jq -r '.scores.maxPoints // "N/A"' "$result_file")
+              
+              if [ "$score" = "N/A" ]; then
+                status="❌ Failed"
+                issues="Analysis failed"
+              elif [ "$score" -lt ${{ inputs.pana_min_score }} ]; then
+                status="⚠️ Below threshold"
+                issues=$(jq -r '[.suggestions[]?.title // empty] | join(", ")' "$result_file" | head -c 100)
+                if [ ${#issues} -gt 95 ]; then
+                  issues="${issues}..."
+                fi
+              else
+                status="✅ Pass"
+                issues="-"
+              fi
+              
+              echo "| \`$package_name\` | $score/$max_score | $status | $issues |" >> pana_summary.md
+            fi
+          done
+          
+          echo "" >> pana_summary.md
+          echo "**Minimum required score:** ${{ inputs.pana_min_score }}" >> pana_summary.md
+          echo "**Allow failures:** ${{ inputs.pana_allow_failure }}" >> pana_summary.md
+      
+      - name: Comment PR with Pana Results
+        if: ${{ inputs.package == true && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const summary = fs.readFileSync('pana_summary.md', 'utf8');
+              const prNumber = context.payload.pull_request?.number || context.issue.number;
+              
+              if (!prNumber) {
+                console.log('No PR number found, skipping comment');
+                return;
+              }
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: summary
+              });
+              
+              console.log('Pana analysis results posted to PR');
+            } catch (error) {
+              console.log('Error posting pana summary:', error);
+            }
