@@ -35,10 +35,19 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.generate_token.outputs.token }}
+      # Set git identity to the GitHub App bot user so commits are marked
+      # "Verified" by GitHub without requiring a local signing key.
+      # GitHub matches the bot's noreply email to the push token and signs server-side.
+      # See: https://github.com/actions/create-github-app-token#configure-git-cli-for-an-apps-bot-user
+      - name: Get GitHub App bot user ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.generate_token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
       - name: configure git
         run: |
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config user.name "${{ steps.generate_token.outputs.app-slug }}[bot]"
+          git config user.email "${{ steps.get-user-id.outputs.user-id }}+${{ steps.generate_token.outputs.app-slug }}[bot]@users.noreply.github.com"
       # Note: This workflow uses the latest stable version of the Flutter+Dart SDK.
       # You can specify other versions if desired, see documentation here:
       # https://github.com/flutter-actions/setup-flutter/blob/main/README.md
