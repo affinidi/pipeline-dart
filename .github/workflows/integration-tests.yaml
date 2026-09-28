@@ -10,6 +10,11 @@ on:
         type: string
         required: true
         default: './packages/integration_tests'
+      melos-version:
+        description: "Melos version used by bluefireteam/melos-action. Empty means the latest release."
+        type: string
+        required: false
+        default: ''
 
 jobs:
   run_tests:
@@ -33,6 +38,8 @@ jobs:
 
       - name: Set up melos
         uses: bluefireteam/melos-action@v3
+        with:
+          melos-version: ${{ inputs.melos-version }}
 
       - name: Run integration tests
         run: melos test-integration

@@ -10,6 +10,11 @@ on:
         required: false
         default: '.'
         type: string
+      melos-version:
+        description: "Melos version used by bluefireteam/melos-action. Must be >= 8.6.0 so versioning detects plain root-package `vX.Y.Z` tags."
+        type: string
+        required: false
+        default: '8.7.0'
 
 jobs:
   dart-scan:
@@ -57,8 +62,7 @@ jobs:
           version: ${{ inputs.flutter-version }}
       - uses: bluefireteam/melos-action@v3
         with:
-          # Pin Melos >= 8.6.0 so versioning detects plain root-package `vX.Y.Z` tags.
-          melos-version: '8.7.0'
+          melos-version: ${{ inputs.melos-version }}
           run-versioning: true
           publish-dry-run: true
           tag: true

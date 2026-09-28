@@ -29,6 +29,11 @@ on:
         description: "Environment variables that will be passed to the build"
         required: false
         type: string
+      melos-version:
+        description: "Melos version used by bluefireteam/melos-action. Empty means the latest release."
+        required: false
+        type: string
+        default: ''
 
 jobs:
   dart-scan:
@@ -78,6 +83,8 @@ jobs:
           channel: stable
           version: ${{ inputs.flutter-version }}
       - uses: bluefireteam/melos-action@v3
+        with:
+          melos-version: ${{ inputs.melos-version }}
       - name: Check formatting
         run: melos format --output=none --set-exit-if-changed .
       - name: Run static analysis
