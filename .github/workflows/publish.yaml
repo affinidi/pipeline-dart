@@ -12,6 +12,11 @@ on:
         type: string
         required: false
         default: '3.32.4'
+      melos-version:
+        description: "Melos version used by bluefireteam/melos-action. Must be >= 8.6.0 so plain root-package `vX.Y.Z` tags map to the package."
+        type: string
+        required: false
+        default: '8.7.0'
 
 jobs:
   publish-packages:
@@ -32,7 +37,6 @@ jobs:
       - uses: flutter-actions/setup-pubdev-credentials@v1
       - uses: bluefireteam/melos-action@v3
         with:
-          # Pin Melos >= 8.6.0 so plain root-package `vX.Y.Z` tags map to the package.
-          melos-version: '8.7.0'
+          melos-version: ${{ inputs.melos-version }}
           publish: ${{ inputs.publish }}
           dart-version: 'none'
